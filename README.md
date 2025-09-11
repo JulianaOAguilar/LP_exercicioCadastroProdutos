@@ -48,4 +48,7 @@ Depois de implementado, tente adicionar um input na interface e filtrar com o va
 3.  Comece a codificar!
 4.  Teste seu código no navegador para verificar se tudo está funcionando corretamente.
 
+### UI do Projeto
+![Exemplo da UI](images/exemploUI.png)
+
 Boa sorte e bom trabalho!
