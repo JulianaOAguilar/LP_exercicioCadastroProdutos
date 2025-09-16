@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // 3. Adiciona o evento de 'blur', ou seja, quando sai do campo ao campo de código de barras
-    // Adicione a lógica da máscara e da validação aqui
+    // Adiciona a lógica da máscara e da validação aqui
     const inputCodBarras = document.getElementById('codbarras');
     inputCodBarras.addEventListener('input', function(e) {
         let valor = e.target.value;
@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (valor.length !== 13) {
             alert('O código de barras deve ter 13 dígitos.');
             inputCodBarras.focus()
+
         }
     });
 
@@ -43,70 +44,118 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 
-
 // --- Funções que devem ser implementadas por vocês ---
 
-
 function salvaProdutosLocalStorage() {
-    // Dica: Use JSON.stringify() para converter o array 'produtos' em uma string
-    // e localStorage.setItem('produtos', ...) para salvar no Local Storage.
+    const jsonProduct = JSON.stringify(produtos)
+    localStorage.setItem('produtos', jsonProduct)
 }
 
 function adicionarProduto() {
-    // Dica: 
-    // 1. Pegue os valores dos campos do formulário: codbarras, nome, quantidade e preco.
-    // 2. Crie um objeto com esses valores.
-    // 3. Adicione este novo objeto ao array 'produtos' usando o método push().
-    // 4. Chame salvaProdutosLocalStorage() para persistir os dados.
-    // 5. Chame listarProdutos() para atualizar a tabela na tela.
-    // 6. Limpe o formulário com document.getElementById('formProduto').reset().
-    // 7. Implemente a validação para que os campos não fiquem vazios.
-    // 8. Verifique se o produto já existe pelo código de barras e alerte o usuário.
+    const codBarras = document.getElementById('codbarras').value
+    const nomeProduto = document.getElementById('nome').value
+    const quantProduto = document.getElementById('quantidade').value
+    const precoProduto = document.getElementById('preco').value
+
+    if (nomeProduto == '' || quantProduto == '' || precoProduto == ''  || codBarras == '' )
+    {
+        alert('impossivel adicionar produto, algum campo está incompleto/inválido!')
+        return
+    }
+
+    if (preco < 1 ) {
+        alert('Impossivel adicionar produto, preço deve ser maior que 0!')
+        return
+    }
+
+    if (quantidade < 1) {
+        alert('Impossivel adicionar produto, quantidade deve ser maior que 0!')
+    }
+
+    if (produtos.some(produto => produto.cod === codBarras)) {
+        alert("Impossível adicionar produto, código de barras já existente!");
+        return;
+    }
+
+    let produto = {
+        cod: codBarras, nome: nomeProduto, quantidade: quantProduto, preco: precoProduto
+    }
+
+    produtos.push(produto)
+    salvaProdutosLocalStorage()
+    listarProdutos(produtos)
+    document.getElementById('formProduto').reset()
+    console.log(produtos)
 }
 
 function removerUltimo() {
-    // Dica: Use o método pop() para remover o último item do array 'produtos'.
-    // Lembre-se de chamar salvaProdutosLocalStorage() e listarProdutos() depois.
-    // Verifique se a lista não está vazia antes de tentar remover.
+    if (produtos.length == 0)
+    {
+        alert('Impossivel remover, nenhum produto cadastrado!')
+        return
+    }
+    produtos.pop()
+    salvaProdutosLocalStorage()
+    listarProdutos()
 }
 
 function removerPrimeiro() {
-    // Dica: Use o método shift() para remover o primeiro item do array 'produtos'.
-    // Lembre-se de chamar salvaProdutosLocalStorage() e listarProdutos() depois.
-    // Verifique se a lista não está vazia antes de tentar remover.
+    if (produtos.length == 0)
+    {
+        alert('Impossivel remover, nenhum produto cadastrado!')
+        return
+    }
+    produtos.shift()
+    salvaProdutosLocalStorage()
+    listarProdutos()
 }
 
 function listarProdutos() {
-    // Dica: 
-    // 1. Encontre o elemento <tbody> da sua tabela.
-    // 2. Limpe o conteúdo existente com innerHTML = ''.
-    // 3. Use o método forEach() para iterar sobre o array 'produtos'.
-    // 4. Para cada produto, crie uma string de linha de tabela (<tr>...</tr>)
-    //    e adicione ao innerHTML do <tbody>.
-    // 5. Chame a função calcularTotal() no final para atualizar o valor total.
+    let corpo = document.getElementById('corpo')
+    corpo.innerHTML = '' // esvazia a tabela
+    let linhas = ''
+    produtos.forEach(product => { // para cada produto, adiciona esses itens
+        linhas += `
+        <tr>
+            <td>${product.cod}</td>
+            <td>${product.nome}</td>
+            <td>${product.quantidade}</td>
+            <td>R$ ${parseFloat(product.preco).toFixed(2)}</td>
+        </tr>
+    `;
+    });
+
+    corpo.innerHTML = linhas // recria a tabela com os itens atualizados
+    calcularTotal()
 }
 
 function ordenarPorNome() {
-    // Dica: Use o método sort() no array 'produtos'.
-    // A função de comparação deve usar localeCompare() para comparar os nomes (a.nome, b.nome).
-    // Depois, chame listarProdutos() para exibir a lista ordenada.
+    produtos.sort((a, b) => a.nome.localeCompare(b.nome));
+    listarProdutos();
 }
 
 function ordenarPorPreco() {
-    // Dica: Use o método sort() no array 'produtos'.
-    // A função de comparação deve retornar a diferença entre os preços (a.preco - b.preco).
-    // Depois, chame listarProdutos() para exibir a lista ordenada.
+    produtos.sort((a, b) => a.preco - b.preco);
+    listarProdutos();
 }
 
 function filtrarPorPreco() {
-    // Dica: Use o método filter() para criar um novo array com produtos
-    // cujo preço seja maior que 100.
-    // Em seguida, use map() para extrair apenas os nomes dos produtos filtrados.
-    // Use join(', ') para formatar os nomes em uma única string e exiba com alert().
+    const produtosFiltrados = produtos.filter(prod => parseFloat(prod.preco) > 100)
+    .map(prod => prod.nome)
+    .join(', ')
+
+    if (produtosFiltrados == '')
+    {
+        alert('Nenhum produto com preco maior que 100 cadastrado')
+    } else {
+    alert(`Produtos com preço maior que 100: ${produtosFiltrados}`)
+    }
 }
 
 function calcularTotal() {
-    // Dica: Use o método reduce() no array 'produtos'.
-    // A função de callback deve somar o valor total de cada produto (produto.quantidade * produto.preco).
-    // Atualize o texto do elemento HTML que exibe o total com o valor formatado.
+    const total = produtos.reduce((soma, produto) => {
+        return soma + (parseFloat(produto.preco) * parseInt(produto.quantidade));
+    }, 0);
+    document.getElementById('totalPreco').textContent = `Total: R$ ${total.toFixed(2)}`;
 }
+

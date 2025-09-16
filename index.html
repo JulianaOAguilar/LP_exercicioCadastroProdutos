@@ -31,6 +31,10 @@
             <button type="button" onclick="removerUltimo()" title="Remover Último"> ⏩ Remover Último</button>
             <button type="button" onclick="removerPrimeiro()" title="Remover Primeiro">⏪ Remover Primeiro</button>
             <button type="button" onclick="filtrarPorPreco()" title="Filtrar > R$100">🔍Filtrar > R$100</button>
+            <button type="button" onclick="ordenarPorNome()" title="filtrar por nome">🔠 filtrar por nome </button>
+                    <button type="button" onclick="ordenarPorPreco()" title="filtrar por preço">💵 filtrar por preço </button>
+
+
         </div>
     </form>
 
@@ -44,7 +48,9 @@
                 <th class="ordenavel" onclick="ordenarPorPreco()">Preço (R$) ↕️</th>
             </tr>
         </thead>
-        <tbody></tbody>
+        <tbody id="corpo">
+
+        </tbody>
         <tr class="total">
             <td colspan="3"><strong>Total em Estoque:</strong></td>
             <td id="totalPreco" class="direita">R$ 0,00</td>
